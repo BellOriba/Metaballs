@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	width       = 800
-	height      = 600
-	mouseRadius = 50
+	width       = 400
+	height      = 300
+	mouseRadius = 25
 )
 
 type RGBA struct {
@@ -44,8 +44,8 @@ func main() {
 		event := args[0]
 		rect := canvas.Call("getBoundingClientRect")
 
-		screen.MouseX = event.Get("clientX").Float() - rect.Get("left").Float()
-		screen.MouseY = event.Get("clientY").Float() - rect.Get("top").Float()
+		screen.MouseX = (event.Get("clientX").Float() - rect.Get("left").Float()) / 2.0
+		screen.MouseY = (event.Get("clientY").Float() - rect.Get("top").Float()) / 2.0
 
 		return nil
 	})
@@ -53,9 +53,9 @@ func main() {
 	canvas.Call("addEventListener", "mousemove", mouseListener)
 
 	balls := []Ball{
-		{X: 100, Y: 100, VX: 2, VY: 1.5, Radius: 40, Color: RGBA{255, 0, 0, 255}},
-		{X: 400, Y: 300, VX: -1, VY: 2, Radius: 60, Color: RGBA{0, 255, 0, 255}},
-		{X: 600, Y: 100, VX: 1.2, VY: -1.2, Radius: 35, Color: RGBA{0, 0, 255, 255}},
+		{X: 100, Y: 100, VX: 1, VY: 0.5, Radius: 20, Color: RGBA{255, 0, 0, 255}},
+		{X: 300, Y: 200, VX: -1, VY: 1, Radius: 30, Color: RGBA{0, 255, 0, 255}},
+		{X: 50, Y: 100, VX: 0.8, VY: -0.2, Radius: 13, Color: RGBA{0, 0, 255, 255}},
 	}
 	mouseColor := RGBA{255, 255, 0, 255}
 
@@ -71,6 +71,12 @@ func main() {
 			if balls[i].Y-balls[i].Radius < 0 || balls[i].Y+balls[i].Radius > float64(height) {
 				balls[i].VY *= -1
 			}
+		}
+
+		for i := 0; i < len(screen.Pix); i += 4 {
+			screen.Pix[i] = uint8(float64(screen.Pix[i]) * 0.98)
+			screen.Pix[i+1] = uint8(float64(screen.Pix[i+1]) * 0.98)
+			screen.Pix[i+2] = uint8(float64(screen.Pix[i+2]) * 0.98)
 		}
 
 		for y := 0; y < screen.Height; y++ {
@@ -125,9 +131,13 @@ func main() {
 				}
 
 				idx := (y*screen.Width + x) * 4
-				screen.Pix[idx] = r
-				screen.Pix[idx+1] = g
-				screen.Pix[idx+2] = b
+
+				if totalIntensity > 0.1 {
+					screen.Pix[idx] = r
+					screen.Pix[idx+1] = g
+					screen.Pix[idx+2] = b
+				}
+
 				screen.Pix[idx+3] = 255
 			}
 		}
