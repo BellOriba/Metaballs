@@ -65,11 +65,11 @@ func main() {
 	canvas.Call("addEventListener", "mousemove", mouseListener)
 
 	balls := []Ball{
-		{X: 100, Y: 100, VX: 1, VY: 0.5, Radius: 20, Color: RGBA{255, 0, 0, 255}},
-		{X: 300, Y: 200, VX: -1, VY: 1, Radius: 30, Color: RGBA{0, 255, 0, 255}},
-		{X: 50, Y: 100, VX: 0.8, VY: -0.2, Radius: 13, Color: RGBA{0, 0, 255, 255}},
+		{X: 100, Y: 100, VX: 1, VY: 0.5, Radius: 20, Color: RGBA{250, 2, 12, 255}},
+		{X: 300, Y: 200, VX: -1, VY: 1, Radius: 30, Color: RGBA{42, 232, 0, 255}},
+		{X: 50, Y: 100, VX: 0.8, VY: -0.2, Radius: 13, Color: RGBA{0, 255, 255, 255}},
 	}
-	mouseColor := RGBA{255, 255, 0, 255}
+	mouseColor := RGBA{243, 222, 0, 255}
 
 	var renderFrame js.Func
 	renderFrame = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
@@ -86,9 +86,9 @@ func main() {
 		}
 
 		for i := 0; i < len(screen.Pix); i += 4 {
-			screen.Pix[i] = uint8(float64(screen.Pix[i]) * 0.98)
-			screen.Pix[i+1] = uint8(float64(screen.Pix[i+1]) * 0.98)
-			screen.Pix[i+2] = uint8(float64(screen.Pix[i+2]) * 0.98)
+			screen.Pix[i] = uint8(float64(screen.Pix[i]) * 0.92)
+			screen.Pix[i+1] = uint8(float64(screen.Pix[i+1]) * 0.92)
+			screen.Pix[i+2] = uint8(float64(screen.Pix[i+2]) * 0.92)
 		}
 
 		for y := 0; y < screen.Height; y++ {
@@ -121,7 +121,7 @@ func main() {
 					}
 					totalIntensity += intensity
 
-					weight := (br * br) / (distSq + 1)
+					weight := br / (distSq + 5)
 					rSum += float64(bColor.R) * weight
 					gSum += float64(bColor.G) * weight
 					bSum += float64(bColor.B) * weight
@@ -132,23 +132,25 @@ func main() {
 				if totalIntensity > 0.01 {
 					factor := 1.0
 					if totalIntensity < 1.0 {
-						factor = totalIntensity * totalIntensity
+						factor = totalIntensity
 					}
 
 					if totalWeight > 0 {
-						r = uint8((rSum / totalWeight) * factor)
-						g = uint8((gSum / totalWeight) * factor)
-						b = uint8((bSum / totalWeight) * factor)
+						avgR := rSum / totalWeight
+						avgG := gSum / totalWeight
+						avgB := bSum / totalWeight
+
+						r = uint8(avgR * factor)
+						g = uint8(avgG * factor)
+						b = uint8(avgB * factor)
 					}
 				}
 
 				idx := (y*screen.Width + x) * 4
 
-				if totalIntensity > 0.1 {
-					screen.Pix[idx] = r
-					screen.Pix[idx+1] = g
-					screen.Pix[idx+2] = b
-				}
+				if r > screen.Pix[idx] { screen.Pix[idx] = r }
+				if g > screen.Pix[idx+1] { screen.Pix[idx+1] = g }
+				if b > screen.Pix[idx+2] { screen.Pix[idx+2] = b }
 
 				screen.Pix[idx+3] = 255
 			}
