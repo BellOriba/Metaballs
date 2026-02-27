@@ -138,11 +138,9 @@ func main() {
 				}
 
 				var r, g, b uint8
-				if totalIntensity > 0.01 {
-					factor := 1.0
-					if totalIntensity < 1.0 {
-						factor = totalIntensity
-					}
+				if totalIntensity > 0.5 {
+					factor := (totalIntensity - 0.5) * 20.0
+					if factor > 1.0 { factor = 1.0 }
 
 					if totalWeight > 0 {
 						avgR := rSum / totalWeight
