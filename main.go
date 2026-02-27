@@ -1,13 +1,17 @@
 package main
 
 import (
+	"strconv"
 	"syscall/js"
 )
 
 const (
 	width       = 400
 	height      = 300
-	mouseRadius = 25
+)
+
+var (
+	mouseRadius = 25.0
 )
 
 type RGBA struct {
@@ -39,6 +43,14 @@ func main() {
 	imageData := ctx.Call("createImageData", width, height)
 	jsPixels := js.Global().Get("Uint8ClampedArray").New(len(screen.Pix))
 	dataArray := imageData.Get("data")
+
+	radiusChange := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		val := args[0].Get("target").Get("value").String()
+		newRadius, _ := strconv.ParseFloat(val, 64)
+		mouseRadius = newRadius
+		return nil
+	})
+	doc.Call("getElementById", "radiusInput").Call("addEventListener", "input", radiusChange)
 
 	mouseListener := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		event := args[0]
