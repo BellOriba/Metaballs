@@ -12,6 +12,7 @@ const (
 
 var (
 	mouseRadius = 25.0
+	tailIntensity = 0.0
 )
 
 type RGBA struct {
@@ -52,6 +53,14 @@ func main() {
 	})
 	doc.Call("getElementById", "radiusInput").Call("addEventListener", "input", radiusChange)
 
+	tailChange := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		val := args[0].Get("target").Get("value").String()
+		newTail, _ := strconv.ParseFloat(val, 64)
+		tailIntensity = newTail
+		return nil
+	})
+	doc.Call("getElementById", "tailInput").Call("addEventListener", "input", tailChange)
+
 	mouseListener := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		event := args[0]
 		rect := canvas.Call("getBoundingClientRect")
@@ -86,9 +95,9 @@ func main() {
 		}
 
 		for i := 0; i < len(screen.Pix); i += 4 {
-			screen.Pix[i] = uint8(float64(screen.Pix[i]) * 0.92)
-			screen.Pix[i+1] = uint8(float64(screen.Pix[i+1]) * 0.92)
-			screen.Pix[i+2] = uint8(float64(screen.Pix[i+2]) * 0.92)
+			screen.Pix[i] = uint8(float64(screen.Pix[i]) * tailIntensity)
+			screen.Pix[i+1] = uint8(float64(screen.Pix[i+1]) * tailIntensity)
+			screen.Pix[i+2] = uint8(float64(screen.Pix[i+2]) * tailIntensity)
 		}
 
 		for y := 0; y < screen.Height; y++ {
